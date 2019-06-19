@@ -3,7 +3,7 @@
 let express = require('express')
 let bodyParser = require('body-parser')
 
-var app = express()
+let app = express()
 
 let user_routes = require('./routes/user')
 let client_routes = require('./routes/client')

@@ -7,6 +7,7 @@ let fetch = require('fetch').fetchUrl
 let axios = require('axios')
 let moment = require('moment')
 let schedule = require('node-schedule')
+const Sequelize = require('sequelize');
 
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule()
@@ -183,6 +184,7 @@ function paroMotor(req, res){
     let vehcileId = req.body.uid
     let state = req.body.state
     let clientId = req.params.id
+    console.log('state', state)
     if(vehcileId!=null&&clientId!=null){
         Cliente.findOne({where:{id: clientId}}).then(cliente=>{
             if(cliente){
@@ -195,6 +197,7 @@ function paroMotor(req, res){
             }
         })
     }else{
+        console.log('hola')
         res.status(200).send({message: 'Introduzca todos los datos', status: 403}) 
     }
 }
@@ -208,11 +211,11 @@ function entradasDigitales(req, res){
             if(cliente){
                 Message.findAll({where:{
                     cUid:vehcileId, 
-                    iTipo:{[Op.or]: [61100546, 61100545]}
+                    iTipo:{[Sequelize.Op.or]: [61100546, 61100545]}
                 }}).then(mensajes => {
                     if(mensajes.length>0){
                         console.log(mensajes[mensajes.length-1].dataValues)
-                        res.status(200).send(mensajes[mensajes.length-1])
+                        res.status(200).send({message:mensajes[mensajes.length-1], status: 200})
                     }else{
                         res.status(200).send({message: 'No hay registros', status: 204})
                     }
@@ -233,7 +236,7 @@ function probarParoMotor(req, res){
     if(vehcileId!=null&&clientId!=null){
         Cliente.findOne({where:{id:clientId}}).then(cliente => {
             if(cliente){
-                Message.findAll({where:{cUid:vehcileId, iTipo:{[Op.or]: [70000600, 70000601]}}}).then(mensajes => {
+                Message.findAll({where:{cUid:vehcileId, iTipo:{[Sequelize.Op.or]: [70000600, 70000601]}}}).then(mensajes => {
                     if(mensajes.length>0){
                         console.log(mensajes[mensajes.length-1].dataValues)
                         res.status(200).send(mensajes[mensajes.length-1])
