@@ -3,7 +3,7 @@
 let Cliente = require("../models/client");
 let Sequelize = require("sequelize");
 
-const sequelize = new Sequelize("stk4", "sa", "LuisEduardo1997", {
+const sequelize = new Sequelize("stk4", "SA", "LuisEduardo1997", {
     host: "localhost",
     dialect: "mssql"
 })
