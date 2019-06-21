@@ -378,21 +378,21 @@ function getVehicleByUid(req, res){
                 let url = `https://csv.business.tomtom.com/extern?lang=en&account=${cliente.cCuenta}&username=${cliente.cUsuario}&password=${cliente.cPassword}&apikey=${cliente.cApiKey}&lang=de&action=showObjectReportExtern&objectuid=${uid}&driver=&outputformat=json&speed=?`
                 fetch(url, options, (err, meta, body)=>{
                     if(err){
-                        res.status(500).send({message: 'Error en la petición a Webfleet.'})
+                        res.status(200).send({message: 'Error en la petición a Webfleet.'})
                     }else{
                         if(body){
                             res.status(200).send(body)
                         }else{
-                            res.status(500).send({message: 'Error en la consulta.'})
+                            res.status(200).send({message: 'Error en la consulta.'})
                         }
                     }
                 })
             }else{
-                res.status(403).send({message: 'No se ha encontrado ningún cliente.'})
+                res.status(200).send({message: 'No se ha encontrado ningún cliente.'})
             }
         })
     }else{
-        res.status(403).send({message: 'Introduzca todos los datos'})
+        res.status(200).send({message: 'Introduzca todos los datos'})
     }
     
     /*let options = {method:'PUT'}
@@ -422,9 +422,9 @@ function configInicial(req, res){
                 let options = {method: 'GET'}
                 let url = `https://csv.business.tomtom.com/extern?lang=en&account=${cliente.cCuenta}&username=${cliente.cUsuario}&password=${cliente.cPassword}&apikey=${cliente.cApiKey}&lang=de&action=updateVehicle&vehicletype=${params.vehicletype}&vehiclecolor=${params.vehiclecolor}&identnumber=${params.identnumber}&registrationdate=${params.registrationdate}&licenseplatenumber=${params.licenseplatenumber}&speedlimit=${params.speedlimit}&fueltype=${params.fueltype}&netweight=${params.netweight}&netload=${params.netload}&maxload=${params.maxload}&numaxles=${params.numaxles}&length=${params.length}&width=${params.width}&height=${params.height}&description=${params.description}&power=${params.power}&enginesize=${params.enginesize}&odometer=${params.odometer}&objectuid=${params.uid}&externalid=${params.externalid}&fueltanksize=${params.fueltanksize}&manufacturedyear=${params.manufacturedyear}&fuelreference=${params.fuelreference}&fuelconsumption=${params.fuelconsumption}&outputformat=json`
             
-                axios.get(url)
-                .then(function (response) {
+                axios.get(url).then(function (response) {
                     // handle success
+                    console.log(response)
                     if(response.data.length<1){
                         Vehiculo.create({webfleetUid:params.uid, configurado: true}).then(vehicleSaved=>{
                             if(vehicleSaved){

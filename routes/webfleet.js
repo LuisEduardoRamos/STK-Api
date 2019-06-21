@@ -5,7 +5,7 @@ let WebfleetController = require('../controllers/webfleet')
 let api = express.Router()
 
 api.get('/get-vehicles/:id', WebfleetController.getVehicles)
-api.get('/get-vehicle-details/:id', WebfleetController.getVehicleDetails)
+api.post('/get-vehicle-details/:id', WebfleetController.getVehicleDetails)
 api.get('/vehicles-filtred/:id', WebfleetController.getVehiclesFiltered)
 api.post('/vehicle-by-id/:id', WebfleetController.getVehicleByUid)
 api.post('/config-inicial/:id', WebfleetController.configInicial)

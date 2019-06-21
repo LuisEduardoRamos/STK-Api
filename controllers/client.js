@@ -3,7 +3,7 @@
 let Cliente = require("../models/client");
 let Sequelize = require("sequelize");
 
-const sequelize = new Sequelize("stk4", "SA", "LuisEduardo1997", {
+const sequelize = new Sequelize("stk4", "sa", "LuisEduardo1997", {
     host: "localhost",
     dialect: "mssql"
 })
@@ -27,12 +27,13 @@ function saveClient(req, res){
         
         sequelize.sync().then(()=>{
             Cliente.findOrCreate({
-                where:{cUsuario:cliente.cUsuario},
+                where:{cAlias:cliente.cAlias},
                 defaults:{
                     cNombre: cliente.cNombre,
                     cAlias: cliente.cAlias,
                     cContacto: cliente.cContacto,
                     cTelContacto: cliente.cTelContacto,
+                    cUsuario: cliente.cUsuario,
                     cCuenta: cliente.cCuenta,
                     cPassword: cliente.cPasword,
                     cApiKey: cliente.cApiKey
@@ -41,7 +42,7 @@ function saveClient(req, res){
                 if(created){
                     res.status(200).send(client)
                 }else{
-                    res.status(404).send('User in use.')
+                    res.status(404).send({message: 'Alias in use'})
                 }
             })
         })

@@ -3,4 +3,4 @@ go
 use stk4
 go
 
-SELECT COUNT(*) FROM Messages
+SELECT * FROM Messages WHERE cUid ='1-814325-323334F246'
