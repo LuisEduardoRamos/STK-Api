@@ -509,6 +509,22 @@ function trackVehicle(req, res){
 
 }
 
+function getMessagesByVehicle(req, res){
+    let uid = req.params.id
+    console.log(uid)
+    if(uid !== null){
+        Message.findAll({where: {cUid: uid}}).then(messages => {
+            if(messages){
+                res.status(200).send(messages)
+            }else{
+                res.status(200).send({message: 'No hay mensajes para mostrar', status: 404})
+            }
+        })
+    }else{
+        res.status(200).send({message: 'Introduzca el id del vehículo', status: 403})
+    }
+}
+
 function logbook(req, res){
     let clientId = req.params.id
     let params = req.body
@@ -536,4 +552,4 @@ function logbook(req, res){
     }
     
 }
-module.exports = {getVehicles, getVehicleDetails, getVehiclesFiltered, getVehicleByUid, configInicial, logbook, trackVehicle, standStill, sincronizarBD, probarParoMotor, paroMotor, entradasDigitales}
+module.exports = {getVehicles, getVehicleDetails, getVehiclesFiltered, getVehicleByUid, configInicial, logbook, trackVehicle, standStill, sincronizarBD, probarParoMotor, paroMotor, entradasDigitales, getMessagesByVehicle}

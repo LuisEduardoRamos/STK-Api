@@ -16,5 +16,7 @@ api.post('/sync-messages', WebfleetController.sincronizarBD)
 api.post('/comprobar-paro-motor/:id', WebfleetController.probarParoMotor)
 api.post('/paro-motor/:id', WebfleetController.paroMotor)
 api.post('/entradas-digitales/:id',WebfleetController.entradasDigitales)
+api.get('/get-messages/:id', WebfleetController.getMessagesByVehicle)
+
 
 module.exports = api
