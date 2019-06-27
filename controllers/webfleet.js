@@ -513,6 +513,7 @@ function getMessagesByVehicle(req, res){
     let uid = req.params.id
     console.log(uid)
     if(uid !== null){
+        sequelize
         Message.findAll({where: {cUid: uid}, limit: 100}).then(messages => {
             if(messages){
                 res.status(200).send(messages)

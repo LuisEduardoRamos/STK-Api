@@ -2,6 +2,7 @@
 
 let Usuario = require("../models/user");
 let Sequelize = require("sequelize");
+let nodemailer = require('nodemailer')
 
 const sequelize = new Sequelize("stk4", "sa", "LuisEduardo1997", {
     host: "localhost",
@@ -51,6 +52,42 @@ function login(req, res){
     }
 }
 
+function recoverPassword(req, res){
+    let mail = req.body.mail
+    if(mail!=null){
+        Usuario.findOne({where: {cEmail: mail}}).then(user => {
+            if(user){
+                let transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth:{
+                        user: 'inroute.stk@gmail.com',
+                        pass: 'Inroute2019'
+                    }
+                })
+                let mailOptions = {
+                    from: 'Inroute Support Tool Kit',
+                    to: user.cEmail,
+                    subject: 'Recuperar contraseña',
+                    text: `Se ha solicitado recuperar la contraseña \n Su contraseña es:${user.cPassword}`
+                }
+                transporter.sendMail(mailOptions, (err, info)=>{
+                    if(err){
+                        console.log(info)
+                        res.status(200).send({message: 'El correo con la recuperación no se ha podido enviar', status: 500})
+                    }else{
+                        console.log(info)
+                        res.status(200).send({message: 'Se le ha enviado un correo con su contraseña.'})
+                    }
+                })
+            }else{
+                res.status(200).send({message: 'No se ha encontrado un usuario asociado a ese correo.'})
+            }
+        })
+    }else{
+        res.status(200).send({message: 'Introduzca el correo.', status: 403})
+    }
+}
+
 function getUsers(req, res){
     Usuario.findAll({}).then(usersFound=>{
         if(usersFound){
@@ -61,4 +98,4 @@ function getUsers(req, res){
     })
 }
 
-module.exports = {saveUser, login, getUsers}
+module.exports = {saveUser, login, getUsers, recoverPassword}

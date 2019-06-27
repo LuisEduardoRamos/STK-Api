@@ -7,4 +7,6 @@ let api = express.Router();
 api.post('/save-user', UserController.saveUser)
 api.post('/login', UserController.login)
 api.get('/get-users', UserController.getUsers)
+api.post('/recover-password', UserController.recoverPassword)
+
 module.exports = api
