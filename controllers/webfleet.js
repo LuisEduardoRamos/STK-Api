@@ -161,7 +161,7 @@ const sincronizarBD = async (req, res) =>{
                 }
                 if(arrayMessages.length>0){
                     arrayMessages.map(msg=>{
-                        if(msg.msg_type==70000600||msg.msg_type==70000601||msg.msg_type==61100546||msg.msg_type==61100545){
+                        if(msg.msg_type==70000600||msg.msg_type==70000601||msg.msg_type==60000545||msg.msg_type==60000546){
                             msgObject = {cFecha: msg.msg_time, cUid: msg.objectuid, iTipo: msg.msg_type, cMensaje: msg.msg_text}
                             Message.create(msgObject).then(messageCreated =>{
                             })
