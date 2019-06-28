@@ -514,7 +514,7 @@ function getMessagesByVehicle(req, res){
     let uid = req.params.id
     console.log(uid)
     if(uid !== null){
-        Message.findAll({where: {cUid: uid}, limit: 100}).then(messages => {
+        Message.findAll({where: {cUid: uid}}).then(messages => {
             if(messages){
                 res.status(200).send(messages)
             }else{
