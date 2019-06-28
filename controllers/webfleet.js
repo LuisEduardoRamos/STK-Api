@@ -401,6 +401,7 @@ function getVehicleByUid(req, res){
 }
 
 function configInicial(req, res){
+
     let clienteId = req.params.id
     let params = req.body
     if(params.speedlimit>300||params.speedlimit<0){
@@ -513,7 +514,6 @@ function getMessagesByVehicle(req, res){
     let uid = req.params.id
     console.log(uid)
     if(uid !== null){
-        sequelize
         Message.findAll({where: {cUid: uid}, limit: 100}).then(messages => {
             if(messages){
                 res.status(200).send(messages)
