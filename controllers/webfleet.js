@@ -9,6 +9,11 @@ let moment = require('moment')
 let schedule = require('node-schedule')
 const Sequelize = require('sequelize');
 
+const sequelize = new Sequelize("stk4", "sa", "LuisEduardo1997", {
+    host: "localhost",
+    dialect: "mssql"
+})
+
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule()
 rule.hour = 4
@@ -281,6 +286,7 @@ function getVehicleDetails(req, res){
     }
 }
 
+
 function getVehicles(req, res){
     let clientId = req.params.id
 
@@ -401,52 +407,111 @@ function getVehicleByUid(req, res){
 }
 
 function configInicial(req, res){
-
     let clienteId = req.params.id
     let params = req.body
+    console.log(params.length)
     if(params.speedlimit>300||params.speedlimit<0){
-        res.status(200).send({message: 'La velocidad leimite tiene que ser mayor que 0 y menor que 300', status: 404})
+        res.status(200).send({message: 'La velocidad leimite tiene que ser mayor que 0 y menor que 300', status: 402})
     }
-    if(params.fuelconsumption>100||params.fuelconsumption<0){
-        res.status(200).send({message: 'El consumo promedio tiene que ser mayor que 0 y menor que 100', status: 404})
+    if(params.uid==null||params.uid==undefined){
+        res.status(200).send({message: 'El uid no puede ir vacío', status: 403})
     }
-    if(params.fueltype<0||params.fueltype>3){
+    if(params.vehiclecolor==null||params.vehiclecolor==undefined){
+        res.status(200).send({message: 'El color del vehículo no puede ir vacío', status: 403})
+    }
+    if(params.identnumber==null||params.identnumber==undefined){
+        res.status(200).send({message: 'Introduzca el número de identificación', status: 403})
+    }
+    if(params.length==null||params.length==undefined){
+        res.status(200).send({message: 'El largo del vehículo no puede ir vacío', status: 410})
+    }
+    if(params.registrationdate==null||params.registrationdate==undefined){
+        res.status(200).send({message: 'Ingrese la fecha de registro', status: 403})
+    }
+    if(params.licenseplatenumber==null||params.licenseplatenumber==undefined){
+        res.status(200).send({message: 'Ingrese las plcas del vehículo', status: 403})
+    }
+    if(params.netweight==null||params.netweight==undefined){
+        res.status(200).send({message: 'Ingrese el peso neto', status: 403})
+    }
+    if(params.maxweight==null||params.maxweight==undefined){
+        res.status(200).send({message: 'Ingrese el peso máximo', status: 403})
+    }
+    if(params.maxload==null||params.maxload==undefined){
+        res.status(200).send({message: 'Ingrese la carga máxima', status: 403})
+    }
+    if(params.netload==null||params.netload==undefined){
+        res.status(200).send({message: 'Ingrese la carga total', status: 403})
+    }
+    if(params.numaxles==null||params.numaxles==undefined){
+        res.status(200).send({message: 'Ingrese la cantidad de ejes', status: 403})
+    }
+    if(params.width==null||params.width==undefined){
+        res.status(200).send({message: 'Ingrese la anchura del vehículo', status: 403})
+    }
+    if(params.fuelconsumption>100||params.fuelconsumption<0||params.fuelconsumption==null||params.fuelconsumption==undefined){
+        res.status(200).send({message: 'El consumo promedio tiene que ser mayor que 0 y menor que 100', status: 403})
+    }
+    if(params.fueltype<0||params.fueltype>3||params.fueltype==null||params.fueltype==undefined){
         res.status(200).send({message: 'El tipo de combustible tiene que ser en un rango de 0-3', status: 404})
     }
-    if(params.fuelreference!=0&&params.fuelreference!=1){
-        res.status(200).send({message: 'El tipo de combustible tiene que ser en un rango de 0-1', status: 404})   
+    if(params.height==null||params.height==undefined){
+        res.status(200).send({message: 'Ingrese la altura del vehículo', status: 403})
     }
-    
+    if(params.description==null||params.description==undefined){
+        res.status(200).send({message: 'Ingrese la descripción del vehículo', status: 403})
+    }
+    if(params.power==null||params.power==undefined){
+        res.status(200).send({message: 'Ingrese la potencia del motor', status: 403})
+    }
+    if(params.enginesize==null||params.enginesize==undefined){
+        res.status(200).send({message: 'Ingrese el tamaño del motor', status: 403})
+    }
+    if(params.fuelreference!=0&&params.fuelreference!=1){
+        res.status(200).send({message: 'El tipo de combustible tiene que ser en un rango de 0-1', status: 401})   
+    }
+    if(params.vehicletype==null||params.vehicletype==undefined){
+        res.status(200).send({message: 'Seleccione un tipo de vehículo válido.', status: 405})
+    }
+    if(params.fueltanksize==null||params.fueltanksize==undefined){
+        res.status(200).send({message: 'Ingrese el tamaño del tanque de gasolina', status: 403})
+    }
+    if(params.manufacturedyear==null||params.manufacturedyear==undefined){
+        res.status(200).send({message: 'Ingrese el año de manufactura.', status: 403})
+    }
+    if(params.objectname==null||params.objectname==undefined){
+        res.status(200).send({message: 'Ingrese el nombre del vehículo', status: 403})
+    }
     if(clienteId!=null){
         Cliente.findOne({where:{id:clienteId}}).then(cliente=>{
             if(cliente){
                 let options = {method: 'GET'}
-                let url = `https://csv.business.tomtom.com/extern?lang=en&account=${cliente.cCuenta}&username=${cliente.cUsuario}&password=${cliente.cPassword}&apikey=${cliente.cApiKey}&lang=de&action=updateVehicle&vehicletype=${params.vehicletype}&vehiclecolor=${params.vehiclecolor}&identnumber=${params.identnumber}&registrationdate=${params.registrationdate}&licenseplatenumber=${params.licenseplatenumber}&speedlimit=${params.speedlimit}&fueltype=${params.fueltype}&netweight=${params.netweight}&netload=${params.netload}&maxload=${params.maxload}&numaxles=${params.numaxles}&length=${params.length}&width=${params.width}&height=${params.height}&description=${params.description}&power=${params.power}&enginesize=${params.enginesize}&odometer=${params.odometer}&objectuid=${params.uid}&externalid=${params.externalid}&fueltanksize=${params.fueltanksize}&manufacturedyear=${params.manufacturedyear}&fuelreference=${params.fuelreference}&fuelconsumption=${params.fuelconsumption}&outputformat=json`
+                let url = `https://csv.business.tomtom.com/extern?lang=en&account=${cliente.cCuenta}&username=${cliente.cUsuario}&password=${cliente.cPassword}&apikey=${cliente.cApiKey}&lang=de&action=updateVehicle&vehicletype=${params.vehicletype}&vehiclecolor=${params.vehiclecolor}&identnumber=${params.identnumber}&maxweight=${params.maxweight}&registrationdate=${params.registrationdate}&licenseplatenumber=${params.licenseplatenumber}&speedlimit=${params.speedlimit}&fueltype=${params.fueltype}&netweight=${params.netweight}&netload=${params.netload}&maxload=${params.maxload}&numaxles=${params.numaxles}&length=${params.length}&width=${params.width}&height=${params.height}&description=${params.description}&power=${params.power}&enginesize=${params.enginesize}&objectuid=${params.uid}&externalid=${params.externalid}&fueltanksize=${params.fueltanksize}&manufacturedyear=${params.manufacturedyear}&objectname=${params.objectname}&fuelreference=${params.fuelreference}&fuelconsumption=${params.fuelconsumption}&outputformat=json`
             
                 axios.get(url).then(function (response) {
                     // handle success
-                    console.log(response)
+                    console.log(response.data)
                     if(response.data.length<1){
                         Vehiculo.create({webfleetUid:params.uid, configurado: true}).then(vehicleSaved=>{
                             if(vehicleSaved){
-                                res.status(200).send({vehicleSaved, status: 200})
+                                res.status(200).send({message: 'El vehículo se ha actualizado correctamente', status: 200})
                             }else{
-                                res.status(200).send({message: 'El vehiculo no se ha guardado', status:404})
+                                res.status(200).send({message: 'El vehiculo no se ha guardado', status:406})
                             } 
                         })
                     }else{
-                        res.status(200).send({messgae: 'Algo ha salido mal, intente de nuevo', status: 404})
+                        res.status(200).send({messgae: 'Algo ha salido mal, intente de nuevo', status: 407})
                     }
                 })
                 .catch(function (error) {
                     // handle error
-                    res.status(200).send({messgae: 'Algo ha salido mal con la petición', status: 404})
+                    res.status(200).send({messgae: 'Algo ha salido mal con la petición', status: 408})
                 })
                 .finally(function () {
                     // always executed
                 });
             }else{
-                res.status(200).send({message: 'El usuario no se ha encotnrado', status: 404})
+                res.status(200).send({message: 'El usuario no se ha encotnrado', status: 409})
             }
         })
     }
