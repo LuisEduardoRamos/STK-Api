@@ -98,4 +98,12 @@ function getUsers(req, res){
     })
 }
 
-module.exports = {saveUser, login, getUsers, recoverPassword}
+function updateUser(req, res){
+    let userId = req.params.id
+    let params = req.body
+    Usuario.update(params, {where:{id:userId}}).then(()=>{
+        res.status(200).send({message: 'El usuario se ha actualizado correctamente', status:200})
+    })
+}
+
+module.exports = {saveUser, login, getUsers, recoverPassword, updateUser}
