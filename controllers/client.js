@@ -85,4 +85,19 @@ function editClient(req, res){
     })
 }
 
-module.exports = {saveClient, getClientById, getClients, editClient}
+function deleteClient(req, res){
+    let clientId = req.params.id
+    if(clientId!==null&&clientId!==''&&clientId!==undefined){
+        Cliente.destroy({where:{
+            id: clientId
+        }}).then(clienteRemoved=>{
+            if(clienteRemoved){
+                res.status(200).send({message:'El cliente se ha eliminado.', status:200})
+            }else{
+                res.stauts(200).send({message:'El cliente no se ha podido eliminar', status: 404})
+            }
+        })
+    }
+}
+
+module.exports = {saveClient, getClientById, getClients, editClient, deleteClient}

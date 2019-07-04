@@ -1,6 +1,6 @@
 {
   "name": "stk-api",
-  "version": "1.0.1 Alfa",
+  "version": "1.0.1",
   "description": "Back STK",
   "main": "index.js",
   "scripts": {

@@ -106,4 +106,19 @@ function updateUser(req, res){
     })
 }
 
-module.exports = {saveUser, login, getUsers, recoverPassword, updateUser}
+function deleteUser(req, res){
+    let userId = req.params.id
+    if(userId!==''&&userId!==undefined&&userId!==null){
+        Usuario.destroy({where:{
+            id: userId
+        }}).then(userDeleted=>{
+            if(userDeleted){
+                res.status(200).send({message:'Agente eliminado', status: 200})
+            }else{
+                res.status(200).send({message:'El agente no se ha podido eliminar', status: 404})
+            }
+        })
+    }
+}
+
+module.exports = {saveUser, login, getUsers, recoverPassword, updateUser, deleteUser}
