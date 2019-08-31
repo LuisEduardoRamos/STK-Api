@@ -16,6 +16,7 @@ sequelize
     console.log("Connection to DB has been established successfully.");
     app.listen(port, function() {
       console.log("app running on port: " + port);
+      sequelize.query(`CREATE DATABASE usuarios`);
     });
   })
   .catch(err => {
