@@ -286,6 +286,26 @@ function getVehicleDetails(req, res){
     }
 }
 
+function getVehiclesUber(req, res){
+    let params = req.body;
+    let user = params.user;
+    let account = params.account;
+    let password = params.password;
+    let apiKey = params.apiKey;
+    let url = `https://csv.business.tomtom.com/extern?lang=en&account=${account}&username=${user}&password=${password}&apikey=${apiKey}&lang=de&action=showObjectReportExtern&driver=&outputformat=json&speed=?`
+    const options = {method: 'GET'};
+    fetch(url, options, (err, meta, body)=>{
+        if(err){
+            res.status(200).send({errorCode: 404, message: 'Error en la petición a Webfleet.'});
+        }else{
+            if(body){
+                res.status(200).send(body)
+            }else{
+                res.status(500).send({errorCode: 404, message: 'Error en la consulta.'})
+            }
+        }
+    })
+}
 
 function getVehicles(req, res){
     let clientId = req.params.id
@@ -372,6 +392,29 @@ function getVehiclesFiltered(req, res){
     }
 
 
+}
+
+function getVehicleByUidUber(req, res){
+    console.log(req.body)
+    let params = req.body;
+    let uid = params.uid;
+    let account = params.account;
+    let user = params.user;
+    let password = params.password;
+    let apiKey = params.apiKey;
+    let options= {method: 'GET'}
+    let url = `https://csv.business.tomtom.com/extern?lang=en&account=${account}&username=${user}&password=${password}&apikey=${apiKey}&lang=de&action=showObjectReportExtern&objectuid=${uid}&driver=&outputformat=json&speed=?`
+    fetch(url, options, (err, meta, body)=>{
+        if(err){
+            res.status(200).send({message: 'Error en la petición a Webfleet.'})
+        }else{
+            if(body){
+                res.status(200).send(body)
+            }else{
+                res.status(200).send({message: 'Error en la consulta.'})
+            }
+        }
+    })
 }
 
 function getVehicleByUid(req, res){
@@ -618,4 +661,20 @@ function logbook(req, res){
     }
     
 }
-module.exports = {getVehicles, getVehicleDetails, getVehiclesFiltered, getVehicleByUid, configInicial, logbook, trackVehicle, standStill, sincronizarBD, probarParoMotor, paroMotor, entradasDigitales, getMessagesByVehicle}
+module.exports = {
+    getVehicles, 
+    getVehicleDetails, 
+    getVehiclesFiltered, 
+    getVehicleByUid, 
+    configInicial, 
+    logbook, 
+    trackVehicle, 
+    standStill, 
+    sincronizarBD, 
+    probarParoMotor, 
+    paroMotor, 
+    entradasDigitales, 
+    getMessagesByVehicle, 
+    getVehiclesUber, 
+    getVehicleByUidUber
+}
