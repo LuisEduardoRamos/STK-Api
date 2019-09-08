@@ -9,5 +9,6 @@ api.get('/get-client/:id', ClienteController.getClientById)
 api.get('/get-clients', ClienteController.getClients)
 api.put('/update-client/:id', ClienteController.editClient)
 api.delete('/delete-client/:id', ClienteController.deleteClient)
+api.post('/create-db', ClienteController.createDatabase)
 
 module.exports = api

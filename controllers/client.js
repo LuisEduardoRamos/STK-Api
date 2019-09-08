@@ -100,4 +100,11 @@ function deleteClient(req, res){
     }
 }
 
-module.exports = {saveClient, getClientById, getClients, editClient, deleteClient}
+function createDatabase(req, res){
+    db = req.body.db;
+    sequelize.query(`CREATE DATABASE ${db}`).then(()=>{
+        res.status(200).send({message: 'DB created'});
+    })
+}
+
+module.exports = {saveClient, getClientById, getClients, editClient, deleteClient, createDatabase}
