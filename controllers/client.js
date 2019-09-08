@@ -101,7 +101,7 @@ function deleteClient(req, res){
 }
 
 function createDatabase(req, res){
-    db = req.body.db;
+    let db = req.body.db;
     sequelize.query(`CREATE DATABASE ${db}`).then(()=>{
         res.status(200).send({message: 'DB created'});
     })
