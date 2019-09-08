@@ -129,8 +129,6 @@ async function autoSyncBD(clienteCuenta){
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
-
 const sincronizarBD = async (req, res) =>{
     console.log('------------------------------Sincronizando BD---------------------------------')
     console.log(req.body)
@@ -207,6 +205,19 @@ function paroMotor(req, res){
     }
 }
 
+const paroMotorUber = async(req, res) =>{
+    let uid = req.params.id
+    let state = req.body.state
+    let user = req.body.state
+    let account = req.body.state
+    let password = req.body.password
+    let apiKey = req.body.apiKey
+    let url = `https://csv.business.tomtom.com/extern?lang=en&account=${account}&username=${user}&password=${password}&apikey=${apiKey}&objectuid=${uid}&lang=de&action=switchOutput&status=${state}&outputformat=json&speed=?`
+    let { data } = await axios.get(url)
+    console.log(data)
+    res.status(200).send(data)
+}
+
 function entradasDigitales(req, res){
     let vehcileId = req.body.uid
     let clientId = req.params.id
@@ -231,6 +242,37 @@ function entradasDigitales(req, res){
         })
     }else{
         res.status(200).send({message: 'Introduzca todos los datos', status: 403})
+    }
+}
+
+function entradasDigitalesUber(req, res){
+    let uid = req.params.id
+    Message.findAll({where:{
+        cUid:uid, 
+        iTipo:{[Sequelize.Op.or]: [61100546, 61100545]}
+    }}).then(mensajes => {
+        if(mensajes.length>0){
+            console.log(mensajes[mensajes.length-1].dataValues)
+            res.status(200).send({message:mensajes[mensajes.length-1], status: 200})
+        }else{
+            res.status(200).send({message: 'No hay registros', status: 204})
+        }
+    })
+}
+
+function probarParoMotorUber(req, res){
+    let uid = req.params.id;
+    if(uid!==null&&uid!==undefined&&uid!==''){
+        Message.findAll({where:{cUid:uid, iTipo:{[Sequelize.Op.or]: [70000600, 70000601]}}}).then(mensajes => {
+            if(mensajes.length>0){
+                console.log(mensajes[mensajes.length-1].dataValues)
+                res.status(200).send(mensajes[mensajes.length-1])
+            }else{
+                res.status(200).send({message: 'No hay registros', status: 204})
+            }
+        })
+    }else{
+        res.status(200).send({errorCode: 403, message: 'Ingrese el uid  '})
     }
 }
 
@@ -676,5 +718,8 @@ module.exports = {
     entradasDigitales, 
     getMessagesByVehicle, 
     getVehiclesUber, 
-    getVehicleByUidUber
+    getVehicleByUidUber,
+    entradasDigitalesUber,
+    probarParoMotorUber,
+    paroMotorUber
 }
