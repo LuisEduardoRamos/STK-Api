@@ -21,6 +21,6 @@ api.post('/get-vehicles-uber', WebfleetController.getVehiclesUber)
 api.post('/get-vehicles-id-uber', WebfleetController.getVehicleByUidUber)
 api.get('/entradas-digitales-uber/:id', WebfleetController.entradasDigitalesUber)
 api.get('/probar-paro-motor-uber/:id', WebfleetController.probarParoMotorUber)
-api.post('/paro-motor-uber', WebfleetController.probarParoMotor)
+api.post('/paro-motor-uber/:id', WebfleetController.probarParoMotor)
 
 module.exports = api
