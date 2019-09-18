@@ -208,8 +208,8 @@ function paroMotor(req, res){
 const paroMotorUber = async(req, res) =>{
     let uid = req.params.id
     let state = req.body.state
-    let user = req.body.state
-    let account = req.body.state
+    let user = req.body.user
+    let account = req.body.account
     let password = req.body.password
     let apiKey = req.body.apiKey
     let url = `https://csv.business.tomtom.com/extern?lang=en&account=${account}&username=${user}&password=${password}&apikey=${apiKey}&objectuid=${uid}&lang=de&action=switchOutput&status=${state}&outputformat=json&speed=?`
