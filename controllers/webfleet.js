@@ -13,8 +13,8 @@ let inrouteCentral_url = process.env.INROUTE_CENTRAL_URL;
 
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule();
-rule.hour = 21;
-rule.minute = 4;
+rule.hour = 23;
+rule.minute = 15;
 let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
     let dormir = false;
     try{
@@ -59,7 +59,15 @@ const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 //--------------------------------------------------Funciones para BD sync mensajes (No tocar, ya funcionan bien )-----------------------------------------------------------------------------------------------------------------------------------------------------//
+async function createQueue(credenciales){
+    let url = `https://csv.business.tomtom.com/extern?lang=en&account=${credenciales.cuenta}&username=${credenciales.usuario}&password=${credenciales.password}&apikey=${credenciales.apikey}&lang=de&action=createQueueExtern&msgclass=0&outputformat=json`;
+    try {
+        await axios.get(url);
+    } catch (err){
+        console.log(err);
+    }
 
+}
 async function popQueue(credenciales) {
     let url = `https://csv.business.tomtom.com/extern?lang=en&account=${credenciales.cuenta}&username=${credenciales.usuario}&password=${credenciales.password}&apikey=${credenciales.apikey}&lang=de&action=popQueueMessagesExtern&msgclass=0&outputformat=json&speed=?`
     try {
