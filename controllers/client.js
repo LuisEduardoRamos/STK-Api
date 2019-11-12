@@ -53,7 +53,6 @@ function saveClient(req, res){
 
 function getClientById(req, res){
     let clientId = req.params.id
-
     if(clientId!=null){
         Cliente.findOne({where:{id:clientId}}).then(client=>{
             if(client){
