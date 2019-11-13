@@ -14,7 +14,7 @@ let inrouteCentral_url = process.env.INROUTE_CENTRAL_URL;
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule();
 rule.hour = 22;
-rule.minute = 15;
+rule.minute = 19;
 let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
     let dormir = false;
     try{
@@ -25,12 +25,7 @@ let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
                     for(let i =0; i<data.length; i++){
                         let cliente = data[i];
                         console.log(`-------------${cliente.cuenta}-------------`)
-                        dormir = await autoSyncBD(cliente)
-                        while (dormir) {
-                            console.log('-------------------Durmiendo-----------------')
-                            await sleep(65000)
-                            dormir = await sincronizarBD(cliente);
-                        }
+                        await sincronizarBD(cliente)
                     }
                     // data.map(async cliente => {
                     //     console.log('-------------Mapeo clientes-------------')
