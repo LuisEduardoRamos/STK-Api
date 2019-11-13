@@ -190,7 +190,7 @@ const sincronizarBD = async (req, res) => {
             let ultimaHora = arrayMessages[ultimoMsg]? arrayMessages[ultimoMsg].msg_time : '';
             console.log('Ultimo mensaje');
             console.log(arrayMessages[ultimoMsg] );
-            while (antier.isAfter(ultimaHora)) {
+            while (antier.isBefore(ultimaHora)) {
                 let cont = await clearQueue(cliente);
                 if(cont==='dormir'){
                     console.log('dormiré debido a que se me acabo la cuota de ack');
