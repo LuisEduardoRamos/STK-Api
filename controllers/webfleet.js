@@ -13,7 +13,7 @@ let inrouteCentral_url = process.env.INROUTE_CENTRAL_URL;
 
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule();
-rule.hour = 23;
+rule.hour = 22;
 rule.minute = 15;
 let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
     let dormir = false;
@@ -29,7 +29,7 @@ let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
                         while (dormir) {
                             console.log('-------------------Durmiendo-----------------')
                             await sleep(65000)
-                            dormir = await autoSyncBD(cliente)
+                            dormir = await sincronizarBD(cliente);
                         }
                     }
                     // data.map(async cliente => {
@@ -76,13 +76,13 @@ async function popQueue(credenciales) {
             return 'dormir'
         }
         else if (data.errorCode) {
-            return []
+            return 'romper';
         } else {
             return data;
         }
     } catch (err) {
         console.log('Regresó falso')
-        return []
+        return 'romper';
     }
 }
 
@@ -182,61 +182,89 @@ const sincronizarBD = async (req, res) => {
     let msgObject = {}
     let statusResp = 200;
     let cliente = req.user;
-
+    let messageQueue = [];
+    let clear = null;
     try {
-        let arrayMessages = await popQueue(cliente)
-        if (arrayMessages) {
-            let ultimoMsg = arrayMessages.length - 1
-            let ultimaHora = arrayMessages[ultimoMsg]? arrayMessages[ultimoMsg].msg_time : '';
-            console.log('Ultimo mensaje');
-            console.log(arrayMessages[ultimoMsg] );
-            while (antier.isBefore(ultimaHora)) {
-                let cont = await clearQueue(cliente);
-                if(cont==='dormir'){
-                    console.log('dormiré debido a que se me acabo la cuota de ack');
-                    await sleep(60000);
-                    cont = await clearQueue(cliente);
-                }
-                else if (!cont) {
-                    console.log('rompi')
-                    statusResp = 405
-                    break
-                }
-                arrayPopQueue = await popQueue(cliente);
-                if(arrayPopQueue === 'dormir'){
-                    console.log('dormiré debido a que se me acabo la cuota de pop');
-                    await sleep(60000);
-                    arrayPopQueue = await popQueue(cliente);
-                }
-                console.log("--------Pop queue ---------------");
-                console.log(arrayPopQueue.length);
-                if (arrayPopQueue.length != 0) {
-                    ultimoMsg = arrayPopQueue.length - 1
-                    if (arrayPopQueue[ultimoMsg].msg_time != undefined) {
-                        console.log('Fecha --->' +arrayPopQueue[ultimoMsg].msg_time);
-                        ultimaHora = moment(arrayPopQueue[ultimoMsg].msg_time)
-                        arrayMessages = arrayMessages.concat(arrayPopQueue)
-                    }
-
-                } else {
-                    console.log('A dormir')
-                    
-                }
+        let arrayMessages = await popQueue(cliente);
+        while(arrayMessages !=='romper'){
+            if(arrayMessages === 'dormir' || clear ==='dormir'){
+                console.log('dormiré debido a que se me acabo la cuota de pop');
+                await sleep(60000);
             }
-            if (arrayMessages.length > 0) {
-                arrayMessages.map(msg => {
-                    if (msg.msg_type == 70000600 || msg.msg_type == 70000601 || msg.msg_type == 60000545 || msg.msg_type == 60000546) {
-                        msgObject = { cFecha: msg.msg_time, cUid: msg.objectuid, iTipo: msg.msg_type, cMensaje: msg.msg_text }
-                        Message.create(msgObject).then(messageCreated => {
-                            console.log('guarde mensaje');
-                        })
-                    }
-                })
-                res.status(200).send({ message: 'Inserciones correctas', status: statusResp })
+            else if ( arrayMessages.length > 0 ){
+                messageQueue.concat(arrayMessages);
+                clear = clearQueue(cliente);
+                arrayMessages = popQueue(cliente);
             }
-        } else {
-            res.status(200).send({ message: 'No se han guardado los mensajes' })
+            else{
+                break;
+            }
         }
+        if (messageQueue.length > 0) {
+            messageQueue.map(msg => {
+                if (msg.msg_type == 70000600 || msg.msg_type == 70000601 || msg.msg_type == 60000545 || msg.msg_type == 60000546) {
+                    msgObject = { cFecha: msg.msg_time, cUid: msg.objectuid, iTipo: msg.msg_type, cMensaje: msg.msg_text }
+                    Message.create(msgObject).then(messageCreated => {
+                        console.log('guarde mensaje');
+                    })
+                }
+            })
+            res.status(200).send({ message: 'Inserciones correctas', status: statusResp })
+        }else{
+            res.status(200).send({ message: 'Inserciones incorrectas', status: statusResp })
+        }
+        // if (arrayMessages) {
+        //     let ultimoMsg = arrayMessages.length - 1
+        //     let ultimaHora = arrayMessages[ultimoMsg]? arrayMessages[ultimoMsg].msg_time : '';
+        //     console.log('Ultimo mensaje');
+        //     console.log(arrayMessages[ultimoMsg] );
+        //     while (antier.isBefore(ultimaHora)) {
+        //         let cont = await clearQueue(cliente);
+        //         if(cont==='dormir'){
+        //             console.log('dormiré debido a que se me acabo la cuota de ack');
+        //             await sleep(60000);
+        //             cont = await clearQueue(cliente);
+        //         }
+        //         else if (!cont) {
+        //             console.log('rompi')
+        //             statusResp = 405
+        //             break
+        //         }
+        //         arrayPopQueue = await popQueue(cliente);
+        //         if(arrayPopQueue === 'dormir'){
+        //             console.log('dormiré debido a que se me acabo la cuota de pop');
+        //             await sleep(60000);
+        //             arrayPopQueue = await popQueue(cliente);
+        //         }
+        //         console.log("--------Pop queue ---------------");
+        //         console.log(arrayPopQueue.length);
+        //         if (arrayPopQueue.length != 0) {
+        //             ultimoMsg = arrayPopQueue.length - 1
+        //             if (arrayPopQueue[ultimoMsg].msg_time != undefined) {
+        //                 console.log('Fecha --->' +arrayPopQueue[ultimoMsg].msg_time);
+        //                 ultimaHora = moment(arrayPopQueue[ultimoMsg].msg_time)
+        //                 arrayMessages = arrayMessages.concat(arrayPopQueue)
+        //             }
+
+        //         } else {
+        //             console.log('A dormir')
+                    
+        //         }
+        //     }
+        //     if (arrayMessages.length > 0) {
+        //         arrayMessages.map(msg => {
+        //             if (msg.msg_type == 70000600 || msg.msg_type == 70000601 || msg.msg_type == 60000545 || msg.msg_type == 60000546) {
+        //                 msgObject = { cFecha: msg.msg_time, cUid: msg.objectuid, iTipo: msg.msg_type, cMensaje: msg.msg_text }
+        //                 Message.create(msgObject).then(messageCreated => {
+        //                     console.log('guarde mensaje');
+        //                 })
+        //             }
+        //         })
+        //         res.status(200).send({ message: 'Inserciones correctas', status: statusResp })
+        //     }
+        // } else {
+        //     res.status(200).send({ message: 'No se han guardado los mensajes' })
+        // }
     } catch (error) {
         console.log(error)
     }
