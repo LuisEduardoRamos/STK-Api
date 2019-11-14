@@ -14,7 +14,7 @@ let inrouteCentral_url = process.env.INROUTE_CENTRAL_URL;
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule();
 rule.hour = 1;
-rule.minute = 25;
+rule.minute = 30;
 let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
     let dormir = false;
     try{
@@ -137,9 +137,8 @@ async function autoSyncBD(cliente) {
                     })
                 }
             })
-            res.status(200).send({ message: 'Inserciones correctas', status: statusResp })
         }else{
-            res.status(200).send({ message: 'Inserciones incorrectas', status: statusResp })
+            console.log('No habia cola de mensajes por guardar');
         }
         // if (arrayMessages) {
         //     let ultimoMsg = arrayMessages.length - 1
