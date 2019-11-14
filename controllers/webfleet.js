@@ -21,9 +21,10 @@ let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
         let { data } = await axios.get(`http://134.209.60.15:8006/api/get-role-credentials-by-service?rol=${1002}&servicio=${2}`);
             if (data.length >= 0) {
                 try {
+                    let cliente = null;
                     console.log('-------------Mapeo clientes-------------')
                     for(let i =0; i<data.length; i++){
-                        let cliente = data[i];
+                        cliente = data[i];
                         console.log(`-------------${cliente.cuenta}-------------`)
                         await autoSyncBD(cliente)
                     }
