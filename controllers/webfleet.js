@@ -223,7 +223,7 @@ const sincronizarBD = async (req, res) => {
                 await sleep(60000);
             }
             else if ( arrayMessages.length > 0 ){
-                messageQueue.concat(arrayMessages);
+                messageQueue =  messageQueue.concat(arrayMessages);
                 clear = clearQueue(cliente);
                 arrayMessages = popQueue(cliente);
             }
