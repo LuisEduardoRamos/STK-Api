@@ -13,8 +13,7 @@ let inrouteCentral_url = process.env.INROUTE_CENTRAL_URL;
 
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule();
-rule.hour = 24;
-rule.minute = 17;
+rule.minute = 18;
 let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
     let dormir = false;
     try{
