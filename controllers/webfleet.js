@@ -14,7 +14,7 @@ let inrouteCentral_url = process.env.INROUTE_CENTRAL_URL;
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule();
 rule.hour = 1;
-rule.minute = 30;
+rule.minute = 33;
 let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
     let dormir = false;
     try{
@@ -114,7 +114,9 @@ async function autoSyncBD(cliente) {
     let clear = null;
     try {
         let arrayMessages = await popQueue(cliente);
+        console.log(arrayMessages.length);
         while(arrayMessages !=='romper'){
+            console.log('entre al ciclo');
             if(arrayMessages === 'dormir' || clear ==='dormir'){
                 console.log('dormiré debido a que se me acabo la cuota de pop');
                 await sleep(60000);
