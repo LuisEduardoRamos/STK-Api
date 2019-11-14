@@ -25,7 +25,7 @@ let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
                     for(let i =0; i<data.length; i++){
                         let cliente = data[i];
                         console.log(`-------------${cliente.cuenta}-------------`)
-                        await sincronizarBD(cliente)
+                        await autoSyncBD(cliente)
                     }
                     // data.map(async cliente => {
                     //     console.log('-------------Mapeo clientes-------------')
@@ -100,69 +100,103 @@ async function clearQueue(credenciales) {
     }
 }
 
-async function autoSyncBD(credenciales) {
-    console.log('------------------------Sincronizando-----------------------------')
+async function autoSyncBD(cliente) {
+    console.log('------------------------------Sincronizando BD---------------------------------')
+    // var start = new Date().getTime()
     let tiempo = moment().format('DD/MM/YYYY HH:mm:ss')
     let x = moment(tiempo, 'DD/MM/YYYY HH:mm:ss').subtract(48, 'hours')
     let antier = x
     let arrayPopQueue = []
     let msgObject = {}
-    let dormir = false
-    let statusResp=200
-    console.log(credenciales);
-    if (credenciales) {
-        try {
-            let arrayMessages = await popQueue(credenciales);
-            console.log(`------------------------ ${credenciales.cuenta} Primer Pop Queue-----------------------------`)
-            console.log(arrayMessages.length);
-            if (arrayMessages) {
-                let ultimoMsg = arrayMessages.length - 1;
-                let ultimaHora = moment(arrayMessages[ultimoMsg]? arrayMessages[ultimoMsg].msg_time : '');
-                console.log(antier.isAfter(ultimaHora));
-                while (antier.isAfter(ultimaHora)) {
-                    let cont = await clearQueue(credenciales)
-                    if(cont==='dormir'){
-                        console.log('dormiré debido a que se me acabo la cuota de ack');
-                        await sleep(60000);
-                        cont = await clearQueue(credenciales);
-                    }
-                    else if (!cont) {
-                        console.log('rompi el ciclo')
-                        statusResp = 405
-                        break
-                    }
-                    arrayPopQueue = await popQueue(credenciales);
-                    if(arrayPopQueue === 'dormir'){
-                        console.log('dormiré debido a que se me acabo la cuota de pop');
-                        await sleep(60000);
-                        arrayPopQueue = await popQueue(credenciales);
-                    }
-                    console.log(`------- ARRAY POPQUEUE LENGTH = ${arrayPopQueue.length}-------`)
-                    if (arrayPopQueue.length != 0) {
-                        ultimoMsg = arrayPopQueue.length - 1
-                        ultimaHora = moment(arrayPopQueue[ultimoMsg].msg_time);
-                        console.log('Fecha --->' +arrayPopQueue[ultimoMsg].msg_time);
-                        arrayMessages = arrayMessages.concat(arrayPopQueue)
-                    } else {
-                        console.log('----------------A dormir un rato (Se acabaron las peticiones)---------------------')
-                    }
-                }
-                if (arrayMessages.length > 0) {
-                    arrayMessages.map(msg => {
-                        if (msg.msg_type == 70000600 || msg.msg_type == 70000601 || msg.msg_type == 60000545 || msg.msg_type == 60000546) {
-                            msgObject = { cFecha: msg.msg_time, cUid: msg.objectuid, iTipo: msg.msg_type, cMensaje: msg.msg_text }
-                            Message.create(msgObject).then(messageCreated => {
-                            })
-                        }
+    let statusResp = 200;
+    let cliente = req.user;
+    let messageQueue = [];
+    let clear = null;
+    try {
+        let arrayMessages = await popQueue(cliente);
+        while(arrayMessages !=='romper'){
+            if(arrayMessages === 'dormir' || clear ==='dormir'){
+                console.log('dormiré debido a que se me acabo la cuota de pop');
+                await sleep(60000);
+            }
+            else if ( arrayMessages.length > 0 ){
+                messageQueue.concat(arrayMessages);
+                clear = clearQueue(cliente);
+                arrayMessages = popQueue(cliente);
+            }
+            else{
+                break;
+            }
+        }
+        if (messageQueue.length > 0) {
+            messageQueue.map(msg => {
+                if (msg.msg_type == 70000600 || msg.msg_type == 70000601 || msg.msg_type == 60000545 || msg.msg_type == 60000546) {
+                    msgObject = { cFecha: msg.msg_time, cUid: msg.objectuid, iTipo: msg.msg_type, cMensaje: msg.msg_text }
+                    Message.create(msgObject).then(messageCreated => {
+                        console.log('guarde mensaje');
                     })
                 }
-                return dormir
-            }
-            return dormir
-        } catch (error) {
-            console.log(error)
+            })
+            res.status(200).send({ message: 'Inserciones correctas', status: statusResp })
+        }else{
+            res.status(200).send({ message: 'Inserciones incorrectas', status: statusResp })
         }
+        // if (arrayMessages) {
+        //     let ultimoMsg = arrayMessages.length - 1
+        //     let ultimaHora = arrayMessages[ultimoMsg]? arrayMessages[ultimoMsg].msg_time : '';
+        //     console.log('Ultimo mensaje');
+        //     console.log(arrayMessages[ultimoMsg] );
+        //     while (antier.isBefore(ultimaHora)) {
+        //         let cont = await clearQueue(cliente);
+        //         if(cont==='dormir'){
+        //             console.log('dormiré debido a que se me acabo la cuota de ack');
+        //             await sleep(60000);
+        //             cont = await clearQueue(cliente);
+        //         }
+        //         else if (!cont) {
+        //             console.log('rompi')
+        //             statusResp = 405
+        //             break
+        //         }
+        //         arrayPopQueue = await popQueue(cliente);
+        //         if(arrayPopQueue === 'dormir'){
+        //             console.log('dormiré debido a que se me acabo la cuota de pop');
+        //             await sleep(60000);
+        //             arrayPopQueue = await popQueue(cliente);
+        //         }
+        //         console.log("--------Pop queue ---------------");
+        //         console.log(arrayPopQueue.length);
+        //         if (arrayPopQueue.length != 0) {
+        //             ultimoMsg = arrayPopQueue.length - 1
+        //             if (arrayPopQueue[ultimoMsg].msg_time != undefined) {
+        //                 console.log('Fecha --->' +arrayPopQueue[ultimoMsg].msg_time);
+        //                 ultimaHora = moment(arrayPopQueue[ultimoMsg].msg_time)
+        //                 arrayMessages = arrayMessages.concat(arrayPopQueue)
+        //             }
+
+        //         } else {
+        //             console.log('A dormir')
+                    
+        //         }
+        //     }
+        //     if (arrayMessages.length > 0) {
+        //         arrayMessages.map(msg => {
+        //             if (msg.msg_type == 70000600 || msg.msg_type == 70000601 || msg.msg_type == 60000545 || msg.msg_type == 60000546) {
+        //                 msgObject = { cFecha: msg.msg_time, cUid: msg.objectuid, iTipo: msg.msg_type, cMensaje: msg.msg_text }
+        //                 Message.create(msgObject).then(messageCreated => {
+        //                     console.log('guarde mensaje');
+        //                 })
+        //             }
+        //         })
+        //         res.status(200).send({ message: 'Inserciones correctas', status: statusResp })
+        //     }
+        // } else {
+        //     res.status(200).send({ message: 'No se han guardado los mensajes' })
+        // }
+    } catch (error) {
+        console.log(error)
     }
+    
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
