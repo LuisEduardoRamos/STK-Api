@@ -14,7 +14,7 @@ let inrouteCentral_url = process.env.INROUTE_CENTRAL_URL;
 //------------------------------------------------------------------------- Rutina todos los días a las 4:00 A.M.----------------------------------------------------------------------------------------------------//
 let rule = new schedule.RecurrenceRule();
 rule.hour = 1;
-rule.minute = 35;
+rule.minute = 40;
 let automaticDailySyncBD = schedule.scheduleJob(rule, async function () {
     let dormir = false;
     try{
@@ -130,6 +130,7 @@ async function autoSyncBD(cliente) {
                 break;
             }
         }
+        console.log('messageQueue= ' + messageQueue.length);
         if (messageQueue.length > 0) {
             messageQueue.map(msg => {
                 if (msg.msg_type == 70000600 || msg.msg_type == 70000601 || msg.msg_type == 60000545 || msg.msg_type == 60000546) {
